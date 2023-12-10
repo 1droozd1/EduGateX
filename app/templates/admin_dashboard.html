@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Панель администратора
+{% endblock %}
+
+{% block content %}
+    <!-- Сообщение об успехе добавления абитуриента -->
+    {% if 'AbiturientAddedSuccessfully' in get_flashed_messages() %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Успех!</strong> Абитуриент успешно добавлен.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+        </div>
+    {% endif %}
+
+    <!-- Сообщение об успехе добавления абитуриента -->
+    {% if 'Данные абитуриента обновлены' in get_flashed_messages() %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Успех!</strong> Данные абитуриента успешно обновлены.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+        </div>
+    {% endif %}
+    {% if 'Абитуриент успешно удален' in get_flashed_messages() %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Успех!</strong> Абитуриент успешно удален.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+        </div>
+    {% endif %}
+    
+    <!-- Информация об администраторе и строка поиска -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Информация об администраторе</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Имя:</strong> {{ admin.first_name }}</li>
+                        <li class="list-group-item"><strong>Фамилия:</strong> {{ admin.surname }}</li>
+                        <li class="list-group-item"><strong>Отчество:</strong> {{ admin.patronymic }}</li>
+                        <li class="list-group-item"><strong>Логин:</strong> {{ admin.username }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" action="{{ url_for('search_abiturient') }}">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Поиск" name="search_query">
+                            <button class="btn btn-outline-secondary" type="submit">Поиск</button>
+                        </div>
+                    </form>
+                    <div class="d-flex justify-content-between"> <!-- Используйте d-flex и justify-content-between для выравнивания элементов по горизонтали -->
+                        <a href="{{ url_for('add_abiturient_form') }}" class="btn btn-sm btn-primary mx-3">Добавить абитуриента</a>
+                        <a href="{{ url_for('show_all_abiturients') }}" class="btn btn-sm btn-primary mx-3">Список абитуриентов</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Список направлений и количество заявлений -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                Список направлений и количество заявлений
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for specialty, count in applications_count.items() %}
+                    <li class="list-group-item">
+                        <a href="{{ url_for('specialty_detail', specialty_id=specialty.specialityid) }}">
+                            <strong>{{ specialty.name_speciality }}</strong>: {{ count[0] }} заявлений, {{ count[1] }} обучение
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

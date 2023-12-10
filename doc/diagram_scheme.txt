@@ -1,0 +1,112 @@
+TABLE Abiturient {
+    AbiturientID SERIAL [PRIMARY KEY]
+    first_name VARCHAR(50)
+	  surname VARCHAR(50)
+    patronymic VARCHAR(50)
+    DateOfBirth DATE
+    sex VARCHAR(1)
+    phone VARCHAR(20)
+    email VARCHAR(100)
+    photo BYTEA
+}
+
+TABLE User_account {
+    userID SERIAL [PRIMARY KEY]
+    username VARCHAR(80)
+    password_user VARCHAR(180)
+    AbiturientID INT
+}
+
+TABLE Document_identifier {
+    document_identifier_ID SERIAL [PRIMARY KEY]
+    Doc_type_ID INT
+    series_doc INT
+    number_doc INT
+    date_issue DATE
+    org_id INT
+    AbiturientID INT
+}
+TABLE Types_Document_identifier {
+    Doc_type_ID SERIAL [PRIMARY KEY]
+    Name_doc_type VARCHAR(255)
+}
+TABLE Issuing_Organization {
+    org_id SERIAL [PRIMARY KEY]
+    code_org INT
+    Name_org VARCHAR(255)
+}
+TABLE Document_education {
+    document_identifier_ID SERIAL [PRIMARY KEY]
+    Doc_type_ID INT
+    series_doc INT
+    number_doc INT
+    date_issue DATE
+    org_id INT
+    presence_of_original BOOLEAN
+    AbiturientID INT
+}
+TABLE Types_Document_education {
+    Doc_type_ID SERIAL [PRIMARY KEY]
+    Name_doc_type VARCHAR(255)
+}
+TABLE Education_Organization {
+    org_id SERIAL [PRIMARY KEY]
+    Name_org VARCHAR(255)
+}
+TABLE Application_for_admission {
+    ApplicationID SERIAL [PRIMARY KEY]
+    AbiturientID INT
+    SpecialityID INT
+    data_application DATE
+    EmployeeID INT
+}
+TABLE Specialty_for_study {
+    SpecialityID INT
+    code_speciality VARCHAR(20)
+    name_speciality VARCHAR(50)
+    is_paid BOOLEAN
+    amount_place INT
+}
+TABLE Programm_for_study {
+    ProgrammID SERIAL [PRIMARY KEY]
+    ExamID INT
+}
+TABLE Exam {
+    ExamID SERIAL [PRIMARY KEY]
+    name_exam VARCHAR(50)
+}
+TABLE Exam_res {
+    AbiturientID INT
+    ExamID INT
+    score INT
+}
+TABLE Employee {
+    EmployeeID SERIAL [PRIMARY KEY]
+    first_name VARCHAR(50)
+    surname VARCHAR(50)
+    patronymic VARCHAR(50)
+    username VARCHAR(80)
+    password_user VARCHAR(180)
+    PositionID INT
+}
+TABLE Positions_rights {
+    PositionID SERIAL [PRIMARY KEY]
+    name_position VARCHAR(50)
+    rights_position VARCHAR(50)
+}
+
+Ref: Abiturient.AbiturientID - User_account.AbiturientID
+Ref: Abiturient.AbiturientID - Document_identifier.AbiturientID
+Ref: Document_identifier.Doc_type_ID > Types_Document_identifier.Doc_type_ID
+Ref: Document_identifier.org_id > Issuing_Organization.org_id
+Ref: Document_education.Doc_type_ID > Types_Document_education.Doc_type_ID
+Ref: Document_education.org_id > Education_Organization.org_id
+Ref: Document_education.AbiturientID > Abiturient.AbiturientID
+Ref: Application_for_admission.AbiturientID > Abiturient.AbiturientID
+Ref: Application_for_admission.SpecialityID > Specialty_for_study.SpecialityID
+Ref: Application_for_admission.EmployeeID > Employee.EmployeeID
+Ref: Specialty_for_study.SpecialityID < Programm_for_study.ProgrammID
+Ref: Programm_for_study.ExamID <> Exam.ExamID
+Ref: Exam_res.AbiturientID > Abiturient.AbiturientID
+Ref: Exam_res.ExamID <> Exam.ExamID
+Ref: Employee.PositionID > Positions_rights.PositionID

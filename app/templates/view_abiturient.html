@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Добавляем стили для таблицы */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            font-family: Arial, sans-serif;
+            margin-top: 20px;
+        }
+
+        /* Стили для заголовков таблицы */
+        .table th {
+            background-color: #333;
+            color: #fff;
+            font-size: 18px; /* Увеличиваем размер шрифта для заголовков */
+        }
+
+        /* Стили для ячеек таблицы */
+        .table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            font-size: 16px; /* Увеличиваем размер шрифта для ячеек */
+        }
+
+        /* Добавляем стили для блока с личными данными */
+        .personal-info {
+            background-color: #f7f7f7;
+            text-align: center;
+            border-radius: 5px;
+            max-width: 400px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Стили для заголовка секции личных данных */
+        .personal-info h3 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        /* Стили для полей с данными в блоке личных данных */
+        .personal-info .form-group {
+            margin-bottom: 15px;
+        }
+
+        /* Стили для текста в полях с данными */
+        .personal-info span {
+            font-size: 18px; /* Увеличиваем размер шрифта для текста в полях */
+            color: #555;
+        }
+        
+        /* Стили для таблицы с личными данными в колонках */
+        .personal-info table {
+            width: 100%;
+        }
+
+        /* Стили для заголовка таблицы */
+        .personal-info th {
+            text-align: left;
+            padding-right: 20px;
+            font-weight: normal;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <form method="post" class="form">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h2>Информация об абитуриенте</h2>
+            </div>
+        </div>
+        <div class="card border-0 shadow mb-4 w-50"> <!-- Добавляем класс "card" для создания карточки -->
+            <div class="card-body">
+                <h3 class="card-title text-center">Личные данные</h3>
+                <div class="personal-info">
+                    <table class="mx-auto"> <!-- Таблица для отображения личных данных в колонках -->
+                        <tr>
+                            <th>Фамилия:</th>
+                            <td>{{ abiturient.surname }}</td>
+                        </tr>
+                        <tr>
+                            <th>Имя:</th>
+                            <td>{{ abiturient.first_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Отчество:</th>
+                            <td>{{ abiturient.patronymic }}</td>
+                        </tr>
+                        <tr>
+                            <th>Дата рождения:</th>
+                            <td>{{ abiturient.dateofbirth }}</td>
+                        </tr>
+                        <tr>
+                            <th>Пол:</th>
+                            <td>{{ abiturient.sex }}</td>
+                        </tr>
+                        <tr>
+                            <th>Телефон:</th>
+                            <td>{{ abiturient.phone }}</td>
+                        </tr>
+                        <tr>
+                            <th>Почта:</th>
+                            <td>{{ abiturient.email }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="text-center" style="padding: 10px;">
+            <h3>Документы, удостоверяющие личность</h3>
+        </div>
+        <table class="table"> <!-- Используем таблицу для отображения документов -->
+            <thead>
+                <tr>
+                    <th>Название документа</th> <!-- Заголовок для названия документа -->
+                    <th>Серия документа</th> <!-- Заголовок для серии документа -->
+                    <th>Номер документа</th> <!-- Заголовок для номера документа -->
+                    <th>Наименование организации</th> <!-- Заголовок для наименования организации -->
+                    <th>Дата выдачи</th> <!-- Заголовок для даты выдачи -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for document in documents %}
+                <tr>
+                    <td>{{ document_types[document.doc_type_id - 1] }}</td> <!-- Название документа -->
+                    <td>{{ document.series_doc }}</td> <!-- Серия документа -->
+                    <td>{{ document.number_doc }}</td> <!-- Номер документа -->
+                    <td>{{ issuing_organizations[document.org_id - 1] if document.org_id != None else 'Отсутствует' }}</td> <!-- Наименование организации -->
+                    <td>{{ document.date_issue }}</td> <!-- Дата выдачи -->
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Документы об образовании -->
+        <div class="text-center" style="padding: 10px;">
+            <h3>Документы об образовании</h3>
+        </div>
+        <table class="table"> <!-- Используем таблицу для отображения документов об образовании -->
+            <thead>
+                <tr>
+                    <th>Название документа об образовании</th> <!-- Заголовок для названия документа об образовании -->
+                    <th>Серия документа об образовании</th> <!-- Заголовок для серии документа об образовании -->
+                    <th>Номер документа об образовании</th> <!-- Заголовок для номера документа об образовании -->
+                    <th>Наименование учебной организации</th> <!-- Заголовок для наименования учебной организации -->
+                    <th>Дата выдачи документа об образовании</th> <!-- Заголовок для даты выдачи документа об образовании -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for education_document in education_documents %}
+                <tr>
+                    <td>{{ education_document_types[education_document.doc_type_id - 1] }}</td> <!-- Название документа об образовании -->
+                    <td>{{ education_document.series_doc }}</td> <!-- Серия документа об образовании -->
+                    <td>{{ education_document.number_doc }}</td> <!-- Номер документа об образовании -->
+                    <td>{{ education_organizations[education_document.org_id - 1] if education_document.org_id != None else 'Отсутствует' }}</td> <!-- Наименование учебной организации -->
+                    <td>{{ education_document.date_issue }}</td> <!-- Дата выдачи документа об образовании -->
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="text-center" style="margin-top: 15px;">
+            <a href="{{ session['admin_dashboard'] }}" class="btn btn-secondary">Назад</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

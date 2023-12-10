@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+
+<form method="post" class="form">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h2>Редактирование данных</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="text-center", style="padding: 10px;">
+            <h3>Личные данные</h3>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Фамилия:</label>
+                <input type="text" class="form-control" name="surname" value="{{ abiturient.surname }}">
+            </div>
+            <div class="form-group">
+                <label>Имя:</label>
+                <input type="text" class="form-control" name="first_name" value="{{ abiturient.first_name }}">
+            </div>
+            <div class="form-group">
+                <label>Отчество:</label>
+                <input type="text" class="form-control" name="patronymic" value="{{ abiturient.patronymic }}">
+            </div>
+            <div class="form-group">
+                <label>Дата рождения:</label>
+                <input type="text" class="form-control" name="dateofbirth" value="{{ abiturient.dateofbirth }}">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Пол:</label>
+                <input type="text" class="form-control" name="sex" value="{{ abiturient.sex }}">
+            </div>
+            <div class="form-group">
+                <label>Телефон:</label>
+                <input type="text" class="form-control" name="phone" value="{{ abiturient.phone }}">
+            </div>
+            <div class="form-group">
+                <label>Почта:</label>
+                <input type="text" class="form-control" name="email" value="{{ abiturient.email }}">
+            </div>
+        </div>
+    </div>
+    <div class="text-center", style="padding: 10px;">
+        <h3>Документы, удостоверяющие личность</h3>
+    </div>
+    {% for document in documents %}
+    <!-- Блок для редактирования одного документа -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Тип документа:</label>
+                <select class="form-control" name="doc_type_{{ document.document_identifier_id }}">
+                    {% for doc_type in document_types %}
+                    <option value="{{ doc_type.doc_type_id }}" {% if doc_type.doc_type_id == document.doc_type_id %}selected{% endif %}>{{ doc_type.name_doc_type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Серия документа:</label>
+                <input type="text" class="form-control" name="series_doc_{{ document.document_identifier_id }}" value="{{ document.series_doc }}">
+            </div>
+            <div class="form-group">
+                <label>Номер документа:</label>
+                <input type="text" class="form-control" name="number_doc_{{ document.document_identifier_id }}" value="{{ document.number_doc }}">
+            </div>
+            <hr>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Наименование организации:</label>
+                <select class="form-control select2" name="org_id_{{ document.document_identifier_id }}">
+                    {% for org_value in issuing_organizations %}
+                    <option value="{{ org_value.org_id }}" {% if org_value.org_id == document.org_id %}selected{% endif %}>{{ org_value.name_org }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Дата выдачи:</label>
+                <input type="text" class="form-control" name="date_issue_{{ document.document_identifier_id }}" value="{{ document.date_issue }}">
+            </div>
+        </div>        
+    </div>
+    {% endfor %}
+
+    <!-- Документы об образовании -->
+<div class="text-center" style="padding: 10px;">
+    <h3>Документы об образовании</h3>
+</div>
+{% for education_document in education_documents %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label>Тип документа об образовании:</label>
+            <select class="form-control" name="edu_doc_type_{{ education_document.document_identifier_id }}">
+                {% for doc_type in education_document_types %}
+                <option value="{{ doc_type.doc_type_id }}" {% if doc_type.doc_type_id == education_document.doc_type_id %}selected{% endif %}>{{ doc_type.name_doc_type }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Серия документа об образовании:</label>
+            <input type="text" class="form-control" name="edu_series_doc_{{ education_document.document_identifier_id }}" value="{{ education_document.series_doc }}">
+        </div>
+        <div class="form-group">
+            <label>Номер документа об образовании:</label>
+            <input type="text" class="form-control" name="edu_number_doc_{{ education_document.document_identifier_id }}" value="{{ education_document.number_doc }}">
+        </div>
+        <hr>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group">
+            <label>Наименование учебной организации:</label>
+            <select class="form-control select2" name="edu_org_id_{{ education_document.document_identifier_id }}">
+                {% for org_value in education_organizations %}
+                <option value="{{ org_value.org_id }}" {% if org_value.org_id == education_document.org_id %}selected{% endif %}>{{ org_value.name_org }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Дата выдачи документа об образовании:</label>
+            <input type="text" class="form-control" name="edu_date_issue_{{ education_document.document_identifier_id }}" value="{{ education_document.date_issue }}">
+        </div>
+        <hr>
+    </div>
+</div>
+{% endfor %}
+
+    <div class="text-center" style="margin-top: 15px;">
+        <a href="{{ session['admin_dashboard'] }}" class="btn btn-secondary">Назад</a>
+        <input type="submit" value="Сохранить изменения" class="btn btn-primary">
+    </div>
+</form>
+
+<script>
+    $(document).ready(function() {
+        $('.select2').select2();
+    });
+</script>
+
+{% endblock %}

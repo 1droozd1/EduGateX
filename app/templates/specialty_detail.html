@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% endblock %}
+
+{% block title %}
+    Рейтинг по специальности {{ specialty.name_speciality }}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-1">
+            <a href="{{ session['admin_dashboard'] }}" class="btn btn-secondary me-2">Назад</a>
+        </div>
+        <div class="col-md-14 d-flex align-items-center">
+            <h2 class="text-center">Рейтинг по специальности: {{ specialty.name_speciality }}</h2>
+        </div>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Фамилия</th>
+                    <th scope="col">Имя</th>
+                    <th scope="col">Отчество</th>
+                    <th scope="col">Средний Балл</th>
+                    <th scope="col">Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                <tr class="{% if specialty.amount_place >= loop.index %}table-success{% else %}table-danger{% endif %}">
+                    <td>{{ loop.index }}</td>
+                    <td>{{ application.abiturient.surname }}</td>
+                    <td>{{ application.abiturient.first_name }}</td>
+                    <td>{{ application.abiturient.patronymic }}</td>
+                    <td>{{ application.avarage_point_certitfic }}</td>
+                    <td>{{ 'Проходит' if specialty.amount_place >= loop.index else 'Не проходит' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>        
+    </div>
+{% endblock %}

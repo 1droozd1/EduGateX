@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mt-4 mb-4">Добавить Абитуриента</h2>
+
+    <!-- Всплывающее окно для сообщений -->
+    {% if errors %}
+        <div class="errors.push errors.push-danger" role="errors.push">
+            {% for error in errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('add_abiturient') }}" class="needs-validation" novalidate id="addAbiturientForm">
+        <div class="mb-3">
+            <label for="first_name" class="form-label">Имя</label>
+            <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Имя" required>
+            <div class="invalid-feedback">
+                Пожалуйста, введите имя.
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="surname" class="form-label">Фамилия</label>
+            <input type="text" name="surname" id="surname" class="form-control" placeholder="Фамилия" required>
+            <div class="invalid-feedback">
+                Пожалуйста, введите фамилию.
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="patronymic" class="form-label">Отчество</label>
+            <input type="text" name="patronymic" id="patronymic" class="form-control" placeholder="Отчество">
+        </div>
+        <div class="mb-3">
+            <label for="dateofbirth" class="form-label">Дата рождения</label>
+            <input type="date" name="dateofbirth" id="dateofbirth" class="form-control" required>
+            <div class="invalid-feedback">
+                Пожалуйста, введите дату рождения.
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="sex" class="form-label">Пол</label>
+            <select name="sex" id="sex" class="form-select" required>
+                <option value="">Выберите пол</option>
+                <option value="m">Мужской</option>
+                <option value="f">Женский</option>
+            </select>
+            <div class="invalid-feedback">
+                Пожалуйста, выберите пол.
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="phone" class="form-label">Телефон</label>
+            <input type="text" name="phone" id="phone" class="form-control" placeholder="Телефон">
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" name="email" id="email" class="form-control" placeholder="Email">
+        </div>
+        <div class="mb-3">
+            <label for="specialityid" class="form-label">Выберите направление</label>
+            <select name="specialityid" id="specialityid" class="form-select" required>
+                <option value="">Выберите направление</option>
+                {% for specialty in specialties %}
+                    <option value="{{ specialty.specialityid }}">{{ specialty.name_speciality }}</option>
+                {% endfor %}
+            </select>
+            <div class="invalid-feedback">
+                Пожалуйста, выберите направление.
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="avarage_point_certitfic" class="form-label">Средний балл аттестата</label>
+            <input type="text" name="avarage_point_certitfic" id="avarage_point_certitfic" class="form-control" placeholder="Средний балл аттестата" required>
+            <div class="invalid-feedback">
+                Пожалуйста, введите средний балл аттестата.
+            </div>
+        </div>
+        <a href="{{ session['admin_dashboard'] }}" class="btn btn-secondary">Назад</a>
+        <button type="submit" class="btn btn-primary">Добавить</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('addAbiturientForm').addEventListener('submit', function(event) {
+        var form = this;
+        var errors = [];
+
+        // Пример валидации поля Имя
+        var firstName = form.querySelector('#first_name').value;
+        if (!isValidName(firstName)) {
+            errors.push('Введите корректное имя.');
+        }
+
+        // Пример валидации поля Фамилия
+        var surname = form.querySelector('#surname').value;
+        if (!isValidName(surname)) {
+            errors.push('Введите корректную фамилию.');
+        }
+
+        // Пример валидации поля Дата рождения
+        var dateOfBirth = form.querySelector('#dateofbirth').value;
+        if (!isValidDate(dateOfBirth)) {
+            errors.push('Введите корректную дату рождения в формате YYYY-MM-DD.');
+        }
+
+        // Пример валидации поля Пол
+        var sex = form.querySelector('#sex').value;
+        if (!isValidSex(sex)) {
+            errors.push('Выберите корректный пол.');
+        }
+
+        // Пример валидации поля Средний балл аттестата
+        var averagePoint = form.querySelector('#avarage_point_certitfic').value;
+        if (!isValidAveragePoint(averagePoint)) {
+            errors.push('Введите корректный средний балл аттестата.');
+        }
+
+        // Пример валидации поля Телефон
+        var phone = form.querySelector('#phone').value;
+        if (phone && !isValidPhone(phone)) {
+            errors.push('Введите корректный номер телефона.');
+        }
+
+        // Пример валидации поля Email
+        var email = form.querySelector('#email').value;
+        if (!isValidEmail(email)) {
+            errors.push('Введите корректный адрес электронной почты.');
+        }
+
+        // Пример валидации поля Выберите направление
+        var specialityid = form.querySelector('#specialityid').value;
+        if (!isValidSpeciality(specialityid)) {
+            errors.push('Выберите корректное направление.');
+        }
+
+        if (errors.length > 0) {
+            event.preventDefault(); // Предотвратить отправку формы
+            alert(errors.join('\n')); // Вывести все ошибки в одном сообщении
+        }
+    });
+
+    function isValidName(name) {
+        // Проверка на корректное имя, например, только буквы и не менее 2 символов
+        return /^[A-Za-zА-Яа-я]{2,}$/.test(name);
+    }
+
+    function isValidDate(date) {
+        // Проверка на корректную дату в формате YYYY-MM-DD
+        return /^\d{4}-\d{2}-\d{2}$/.test(date);
+    }
+
+    function isValidSex(sex) {
+        // Проверка на корректный пол (m или f)
+        return /^(m|f)$/.test(sex);
+    }
+
+    function isValidAveragePoint(point) {
+        // Проверка на корректный средний балл (число от 1 до 5)
+        return /^[1-5](\.\d{1,2})?$/.test(point);
+    }
+
+    function isValidPhone(phone) {
+        // Проверка на корректный номер телефона (пример: +1234567890)
+        return /^\+\d{10,15}$/.test(phone);
+    }
+
+    function isValidEmail(email) {
+        // Проверка на корректный адрес электронной почты
+        return /^[^@]+@[^@]+\.[^@]+$/.test(email);
+    }
+
+    function isValidSpeciality(specialityid) {
+        // Проверка на выбранное направление (например, не пустое значение)
+        return specialityid !== "";
+    }
+</script>
+
+{% endblock %}

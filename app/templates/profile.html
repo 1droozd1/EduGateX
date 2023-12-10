@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <!-- Блок информации об абитуриенте -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h2 class="mb-0 text-center">Информация об Абитуриенте</h2>
+                </div>
+                <div class="card-body">
+                    <h3 class="mb-4">Личные данные</h3>
+                    <dl class="row">
+                        <dt class="col-sm-4">Имя:</dt>
+                        <dd class="col-sm-8">{{ abiturient.first_name }}</dd>
+
+                        <dt class="col-sm-4">Фамилия:</dt>
+                        <dd class="col-sm-8">{{ abiturient.surname }}</dd>
+
+                        <dt class="col-sm-4">Отчество:</dt>
+                        <dd class="col-sm-8">{{ abiturient.patronymic }}</dd>
+
+                        <dt class="col-sm-4">Дата рождения:</dt>
+                        <dd class="col-sm-8">{{ abiturient.dateofbirth.strftime('%Y-%m-%d') }}</dd>
+
+                        <dt class="col-sm-4">Пол:</dt>
+                        <dd class="col-sm-8">{{ 'Женский' if abiturient.sex == 'f' else 'Мужской' }}</dd>
+
+                        <dt class="col-sm-4">Телефон:</dt>
+                        <dd class="col-sm-8">{{ abiturient.phone }}</dd>
+
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8">{{ abiturient.email }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Блок документов абитуриента -->
+            <div class="card border-0 shadow documents-block" id="documents-block">
+                <div class="card-body">
+                    <h3 class="mb-4">Документы абитуриента</h3>
+                    <h5 class="mb-4 fa-bold">Личные документы</h5>
+                    {% for document in documents %}
+                        <div class="mb-3">
+                            <p><strong>Тип документа:</strong> {{ document_types[document.doc_type_id - 1] }}</p>
+                            <p><strong>Серия:</strong> {{ document.series_doc }}</p>
+                            <p><strong>Номер:</strong> {{ document.number_doc }}</p>
+                            <p><strong>Дата выдачи:</strong> {{ document.date_issue }}</p>
+                            <p><strong>Организация выдачи:</strong> {{ document.org_id if document.org_id != None else 'Отсутствует' }}</p>
+                        </div>
+                    {% endfor %}
+                    <h5 class="mb-4 fa-bold">Документы об образовании</h5>
+                    {% for education_document in education_documents %}
+                        <div class="mb-3">
+                            <p><strong>Тип документа об образовании:</strong> {{ education_document_types[education_document.doc_type_id - 1] }}</p>
+                            <p><strong>Серия:</strong> {{ education_document.series_doc }}</p>
+                            <p><strong>Номер:</strong> {{ education_document.number_doc }}</p>
+                            <p><strong>Дата выдачи:</strong> {{ education_document.date_issue }}</p>
+                            <p><strong>Наименование учебной организации:</strong> {{ education_organizations[education_document.org_id - 1] }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Блок информации о направлениях -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h3 class="mb-4">Информация о направлениях</h3>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="height: 50px; vertical-align: middle; text-align: center;">Специальность</th>
+                                <th style="height: 50px; vertical-align: middle; text-align: center;">Код специальности</th>
+                                <th style="height: 50px; vertical-align: middle; text-align: center;">Количество мест</th>
+                                <th style="height: 50px; vertical-align: middle; text-align: center;">Балл</th>
+                                <th style="height: 50px; vertical-align: middle; text-align: center;">Место</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for specialty, app in specialties_info %}
+                                <tr>
+                                    <td style="text-align: center; vertical-align: middle;">{{ specialty.name_speciality }}</td>
+                                    <td style="text-align: center; vertical-align: middle;">{{ specialty.code_speciality }}</td>
+                                    <td style="text-align: center; vertical-align: middle;">{{ specialty.amount_place }}</td>
+                                    <td style="text-align: center; vertical-align: middle;">{{ app.avarage_point_certitfic }}</td>
+                                    <td style="text-align: center; vertical-align: middle;">{{ place }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow mt-4">
+                <div class="card-body">
+                    <h3 class="mb-4">Рейтинг по направлениям</h3>
+                    {% for specialty, abiturients in rating_lists.items() %}
+                        <div class="mb-3">
+                            <h4>{{ specialty.name_speciality }}</h4>
+                            <div class="table-responsive" style="max-height: 1415px; overflow-y: scroll;">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>№</th>
+                                            <th>Фамилия</th>
+                                            <th>Имя</th>
+                                            <th>Балл</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for index, abiturient, is_current_user, abiturient_score, is_passing in abiturients %}
+                                            <tr class="{{ 'table-primary' if is_current_user else ('table-success' if is_passing else 'table-danger') }}">
+                                                <td>{{ index }}</td>
+                                                <td>{{ abiturient.surname }}</td>
+                                                <td>{{ abiturient.first_name }}</td>
+                                                <td>{{ abiturient_score }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+</div>
+
+    </div>
+</div>
+
+<script>
+    // Получаем ссылки на блоки с помощью идентификаторов
+    var documentsBlock = document.getElementById('documents-block');
+    var ratingBlock = document.querySelector('.rating-block');
+
+    // Получаем ссылку на таблицу рейтинга по направлениям
+    var ratingTable = document.querySelector('.rating-table');
+
+    // Определяем положение нижней границы блока "Документы абитуриента"
+    var documentsBlockBottom = documentsBlock.offsetTop + documentsBlock.offsetHeight;
+
+    // Устанавливаем максимальную высоту блока "Рейтинг по направлениям" на основе положения нижней границы блока "Документы абитуриента"
+    ratingBlock.style.maxHeight = (documentsBlockBottom - ratingBlock.offsetTop) + 'px';
+    ratingTable.style.maxHeight = (documentsBlockBottom - ratingBlock.offsetTop) + 'px';
+</script>
+
+{% endblock %}

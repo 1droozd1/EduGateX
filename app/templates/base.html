@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Bootstrap стили -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- иконки fontawesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- кастомные стили -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom.css') }}">
+    <style>
+        /* Пастельные тени */
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .navbar {
+            background-color: #007bff; /* синий цвет для верхнего заголовка */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            padding: 15px; /* отступы для лого */
+        }
+
+        .navbar-brand svg {
+            fill: #fff; /* цвет логотипа */
+            width: 50px; /* ширина логотипа */
+            height: 50px; /* высота логотипа */
+            margin-right: 10px; /* отступ справа от логотипа */
+        }
+
+        .navbar-toggler {
+            border-color: #fff; /* цвет иконки бургера */
+        }
+
+        .navbar-brand {
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            padding-left: 60px; /* добавляем отступ слева для текста */
+        }
+        .logo {
+            width: 50px; /* ширина логотипа */
+            height: 50px; /* высота логотипа */
+            margin-right: 10px; /* отступ справа от логотипа */
+        }
+    </style>
+</head>
+<body>
+
+<!-- навигация -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="https://mai.ru">
+            <div style="display: flex; align-items: center;">
+                <img class="logo" src="{{ url_for('static', filename='logo.svg') }}" alt="Логотип">
+                <div style="color: #000000;">Московский авиационный институт</div>
+            </div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+    </div>
+</nav>
+
+
+
+<!-- контент дочерних шаблонов -->
+<div class="container my-3">
+    {% block content %}
+    {% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
