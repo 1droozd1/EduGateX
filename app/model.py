@@ -21,6 +21,9 @@ class Abiturient(db.Model):
     # Связь с заявлениями (один-ко-многим)
     applications = db.relationship('Application_for_admission', backref='abiturient_apl', cascade='all, delete-orphan')
 
+    # Связь с результатами экзаменов (один-ко-многим)
+    exam_res = db.relationship('Exam_res', backref='abiturient_exam_res', cascade='all, delete-orphan')
+
 class User_account(db.Model):
     userid = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False)
@@ -34,7 +37,6 @@ class Document_identifier(db.Model):
     number_doc = db.Column(db.Integer)
     date_issue = db.Column(db.Date)
     org_id = db.Column(db.Integer, db.ForeignKey('issuing_organization.org_id'))
-    file_data = db.Column(db.LargeBinary)
     abiturientid = db.Column(db.Integer, db.ForeignKey('abiturient.abiturientid'))
 
 class Types_document_identifier(db.Model):
@@ -56,7 +58,6 @@ class Document_education(db.Model):
     date_issue = db.Column(db.Date)
     org_id = db.Column(db.Integer, db.ForeignKey('education_organization.org_id'))
     presence_of_original = db.Column(db.Boolean)
-    file_data = db.Column(db.LargeBinary)
     abiturientid = db.Column(db.Integer, db.ForeignKey('abiturient.abiturientid'))
 
 class Types_Document_education(db.Model):
@@ -72,9 +73,7 @@ class Education_Organization(db.Model):
 class Application_for_admission(db.Model):
     applicationid = db.Column(db.Integer, primary_key=True)
     abiturientid = db.Column(db.Integer, db.ForeignKey('abiturient.abiturientid'))
-    abiturient = db.relationship('Abiturient', backref='application_abiturient', )
     specialityid = db.Column(db.Integer, db.ForeignKey('specialty_for_study.specialityid'))
-    avarage_point_certitfic = db.Column(db.DECIMAL(4, 2))
     data_application = db.Column(db.Date)
     employeeid = db.Column(db.Integer, db.ForeignKey('employee.employeeid'))
 
@@ -85,6 +84,19 @@ class Specialty_for_study(db.Model):
     is_paid = db.Column(db.Boolean)
     amount_place = db.Column(db.Integer)
 
+class Programm_for_study(db.Model):
+    programmID = db.Column(db.Integer, db.ForeignKey('specialty_for_study.specialityid'), primary_key=True)
+    examid = db.Column(db.Integer, db.ForeignKey('exam.examid'), primary_key=True)
+
+class Exam(db.Model):
+    examid = db.Column(db.Integer, primary_key=True)
+    name_exam = db.Column(db.String(50), nullable=False)
+
+class Exam_res(db.Model):
+    abiturientID = db.Column(db.Integer, db.ForeignKey('abiturient.abiturientid'), primary_key=True)
+    examID = db.Column(db.Integer, db.ForeignKey('exam.examID'), primary_key=True)
+    score = db.Column(db.Integer)
+
 class Employee(db.Model):
     employeeid = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(50), nullable=False)
@@ -92,3 +104,9 @@ class Employee(db.Model):
     patronymic = db.Column(db.String(50))
     username = db.Column(db.String(80), nullable=False)
     password_user = db.Column(db.String(120), nullable=False)
+    positionid = db.Column(db.Integer, db.ForeignKey('positions_rights.positionid'), primary_key=True)
+
+class Positions_rights(db.Model):
+    positionID = db.Column(db.Integer, primary_key=True)
+    name_position = db.Column(db.String(50), nullable=False)
+    rights_position = db.Column(db.String(50), nullable=False)
