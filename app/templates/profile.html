@@ -89,7 +89,7 @@
                                     <td style="text-align: center; vertical-align: middle;">{{ specialty.name_speciality }}</td>
                                     <td style="text-align: center; vertical-align: middle;">{{ specialty.code_speciality }}</td>
                                     <td style="text-align: center; vertical-align: middle;">{{ specialty.amount_place }}</td>
-                                    <td style="text-align: center; vertical-align: middle;">{{ app.avarage_point_certitfic }}</td>
+                                    <td style="text-align: center; vertical-align: middle;">{{ abiturient_score }}</td>
                                     <td style="text-align: center; vertical-align: middle;">{{ place }}</td>
                                 </tr>
                             {% endfor %}
@@ -104,7 +104,7 @@
                     {% for specialty, abiturients in rating_lists.items() %}
                         <div class="mb-3">
                             <h4>{{ specialty.name_speciality }}</h4>
-                            <div class="table-responsive" style="max-height: 1415px; overflow-y: scroll;">
+                            <div class="table-responsive" style="max-height: 780px; overflow-y: scroll;">
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>

@@ -85,7 +85,7 @@ class Specialty_for_study(db.Model):
     amount_place = db.Column(db.Integer)
 
 class Programm_for_study(db.Model):
-    programmID = db.Column(db.Integer, db.ForeignKey('specialty_for_study.specialityid'), primary_key=True)
+    programmid = db.Column(db.Integer, db.ForeignKey('specialty_for_study.specialityid'), primary_key=True)
     examid = db.Column(db.Integer, db.ForeignKey('exam.examid'), primary_key=True)
 
 class Exam(db.Model):
@@ -93,8 +93,8 @@ class Exam(db.Model):
     name_exam = db.Column(db.String(50), nullable=False)
 
 class Exam_res(db.Model):
-    abiturientID = db.Column(db.Integer, db.ForeignKey('abiturient.abiturientid'), primary_key=True)
-    examID = db.Column(db.Integer, db.ForeignKey('exam.examID'), primary_key=True)
+    abiturientid = db.Column(db.Integer, db.ForeignKey('abiturient.abiturientid'), primary_key=True)
+    examid = db.Column(db.Integer, db.ForeignKey('exam.examID'), primary_key=True)
     score = db.Column(db.Integer)
 
 class Employee(db.Model):

@@ -2,10 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from model import *
-import sys
-sys.path.append('/Users/dr0ozd/coding/EduPortalX')
+
+import sys, os
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_dir = os.path.dirname(script_dir)
+sys.path.append(project_dir)
+
 from config import *
-from sqlalchemy import or_
+from sqlalchemy import or_, desc, func
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -14,22 +18,131 @@ app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 # Инициализируйте объект SQLAlchemy для работы с базой данных
 db.init_app(app)
 
-def get_rating_lists_for_all_specialties(user_abiturientid):
-    rating_lists = {}
-    applications = Application_for_admission.query.filter_by(abiturientid=user_abiturientid).all()
+def get_rating_lists_for_special_detail(specialty_id):
+    applications = Application_for_admission.query.filter_by(specialityid=specialty_id).all()
+
     for app in applications:
         specialty = Specialty_for_study.query.get(app.specialityid)
-        all_apps_for_specialty = Application_for_admission.query.filter_by(specialityid=app.specialityid).order_by(Application_for_admission.avarage_point_certitfic.desc()).all()
+
+        # Результаты экзаменов студентов подавших заявление на данное направление
+        exam_scores = (
+            db.session.query(
+                Exam_res.abiturientid,
+                Exam_res.score,
+                Exam.name_exam
+            )
+            .join(Exam, Exam_res.examid == Exam.examid)
+            .join(Programm_for_study, Exam.examid == Programm_for_study.programmid)
+            .join(Application_for_admission, Exam_res.abiturientid == Application_for_admission.abiturientid)
+
+            .where(
+                Application_for_admission.specialityid == specialty.specialityid and
+                Programm_for_study.programmid == Application_for_admission.specialityid
+            )
+            .group_by(Exam_res.abiturientid, Exam.name_exam, Exam_res.score)
+            .order_by(Exam_res.abiturientid)
+            .all()
+        )
+
+        dict_exam_scores = {}
+        for abiturientID, total_exam_score, name_exam in exam_scores:
+            try:
+                dict_exam_scores[abiturientID].append((name_exam, total_exam_score))
+            except KeyError:
+                dict_exam_scores[abiturientID] = [(name_exam, total_exam_score)]
+        
+        # Список экзаменов необходимых для данной специальности
+        need_exam = (
+            db.session.query(Exam.name_exam)
+            .join(Programm_for_study, Exam.examid == Programm_for_study.examid)
+            .join(Specialty_for_study, Programm_for_study.programmid == Specialty_for_study.specialityid)
+            .filter(Specialty_for_study.specialityid == specialty.specialityid)
+            .all()
+        )
+        need_exam = [exam.name_exam for exam in need_exam]
 
         # Формируем список абитуриентов с индексами
         indexed_abiturients = []
-        for index, application in enumerate(all_apps_for_specialty):
-            abiturient = Abiturient.query.get(application.abiturientid)
-            is_current_user = user_abiturientid == abiturient.abiturientid
-            is_passing = specialty.amount_place >= index + 1
-            abiturient_score = application.avarage_point_certitfic
-            indexed_abiturients.append((index + 1, abiturient, is_current_user, abiturient_score, is_passing))
-        rating_lists[specialty] = indexed_abiturients
+
+        for abiturientID, exams_res in dict_exam_scores.items():
+            abiturient = Abiturient.query.get(abiturientID)
+            score_abi = sum(score for _, score in exams_res) - min([score for subject, score in exams_res if subject in need_exam[1:3]])
+            indexed_abiturients.append([abiturient, score_abi])
+
+        indexed_abiturients_sorted = sorted(indexed_abiturients, key=lambda x: x[1], reverse=True)
+
+        index = 1
+        for _ in range(len(indexed_abiturients_sorted)):
+            indexed_abiturients_sorted[_].insert(0, index)
+            indexed_abiturients_sorted[_].insert(4, specialty.amount_place >= index)
+            index += 1
+
+    
+    return indexed_abiturients_sorted
+
+def get_rating_lists_for_all_specialties(user_abiturientid):
+    rating_lists = {}
+    applications = Application_for_admission.query.filter_by(abiturientid=user_abiturientid).all()
+
+    for app in applications:
+        specialty = Specialty_for_study.query.get(app.specialityid)
+
+        # Результаты экзаменов студентов подавших заявление на данное направление
+        exam_scores = (
+            db.session.query(
+                Exam_res.abiturientid,
+                Exam_res.score,
+                Exam.name_exam
+            )
+            .join(Exam, Exam_res.examid == Exam.examid)
+            .join(Programm_for_study, Exam.examid == Programm_for_study.programmid)
+            .join(Application_for_admission, Exam_res.abiturientid == Application_for_admission.abiturientid)
+
+            .where(
+                Application_for_admission.specialityid == specialty.specialityid and
+                Programm_for_study.programmid == Application_for_admission.specialityid
+            )
+            .group_by(Exam_res.abiturientid, Exam.name_exam, Exam_res.score)
+            .order_by(Exam_res.abiturientid)
+            .all()
+        )
+
+        dict_exam_scores = {}
+        for abiturientID, total_exam_score, name_exam in exam_scores:
+            try:
+                dict_exam_scores[abiturientID].append((name_exam, total_exam_score))
+            except KeyError:
+                dict_exam_scores[abiturientID] = [(name_exam, total_exam_score)]
+        
+        # Список экзаменов необходимых для данной специальности
+        need_exam = (
+            db.session.query(Exam.name_exam)
+            .join(Programm_for_study, Exam.examid == Programm_for_study.examid)
+            .join(Specialty_for_study, Programm_for_study.programmid == Specialty_for_study.specialityid)
+            .filter(Specialty_for_study.specialityid == specialty.specialityid)
+            .all()
+        )
+        need_exam = [exam.name_exam for exam in need_exam]
+
+        # Формируем список абитуриентов с индексами
+        indexed_abiturients = []
+
+        for abiturientID, exams_res in dict_exam_scores.items():
+            abiturient = Abiturient.query.get(abiturientID)
+            is_current_user = user_abiturientid == abiturientID
+            score_abi = sum(score for _, score in exams_res) - min([score for subject, score in exams_res if subject in need_exam[1:3]])
+            indexed_abiturients.append([abiturient, is_current_user, score_abi])
+
+        indexed_abiturients_sorted = sorted(indexed_abiturients, key=lambda x: x[2], reverse=True)
+
+        index = 1
+        for _ in range(len(indexed_abiturients_sorted)):
+            indexed_abiturients_sorted[_].insert(0, index)
+            indexed_abiturients_sorted[_].insert(4, specialty.amount_place >= index)
+            index += 1
+
+        rating_lists[specialty] = indexed_abiturients_sorted
+    
     return rating_lists
 
 @app.route('/', methods=['GET', 'POST'])
@@ -214,7 +327,7 @@ def edit_abiturient(abiturientid):
 @app.route('/specialty_detail/<int:specialty_id>')
 def specialty_detail(specialty_id):
     specialty = Specialty_for_study.query.get_or_404(specialty_id)
-    applications = Application_for_admission.query.filter_by(specialityid=specialty_id).order_by(Application_for_admission.avarage_point_certitfic.desc()).all()
+    applications = get_rating_lists_for_special_detail(specialty_id)
 
     return render_template('specialty_detail.html', specialty=specialty, applications=applications)
 
@@ -237,6 +350,7 @@ def profile(username):
         
         # Получаем рейтинговые списки
         rating_lists = get_rating_lists_for_all_specialties(user.abiturientid)
+
         # Определяем специальность абитуриента
         abiturient_specialty = None
         for specialty, abiturients in rating_lists.items():
@@ -246,14 +360,17 @@ def profile(username):
         
         # Находим абитуриента в списке его специальности
         abiturient_place = None
+        abiturient_score = None
+
         if abiturient_specialty:
-            abiturient_scores = [score for _, _, _, score, _ in rating_lists[abiturient_specialty]]
             abiturient_score = None
             for index, (_, _, is_current_user, score, _) in enumerate(rating_lists[abiturient_specialty]):
                 if is_current_user:
                     abiturient_score = score
                     abiturient_place = index + 1
                     break
+        
+        print(abiturient_score, abiturient_place)
 
         return render_template('profile.html', abiturient=abiturient, documents=documents, document_types=document_types, issuing_organizations=issuing_organizations, education_documents=education_documents, education_document_types=education_document_types, education_organizations=education_organizations, specialties_info=specialties_info, rating_lists=rating_lists, place=abiturient_place, abiturient_score=abiturient_score)
     else:

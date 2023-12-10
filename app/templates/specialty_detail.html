@@ -23,7 +23,7 @@
                     <th scope="col">Фамилия</th>
                     <th scope="col">Имя</th>
                     <th scope="col">Отчество</th>
-                    <th scope="col">Средний Балл</th>
+                    <th scope="col">Общий Балл</th>
                     <th scope="col">Статус</th>
                 </tr>
             </thead>
@@ -31,10 +31,10 @@
                 {% for application in applications %}
                 <tr class="{% if specialty.amount_place >= loop.index %}table-success{% else %}table-danger{% endif %}">
                     <td>{{ loop.index }}</td>
-                    <td>{{ application.abiturient.surname }}</td>
-                    <td>{{ application.abiturient.first_name }}</td>
-                    <td>{{ application.abiturient.patronymic }}</td>
-                    <td>{{ application.avarage_point_certitfic }}</td>
+                    <td>{{ application[1].surname }}</td>
+                    <td>{{ application[1].first_name }}</td>
+                    <td>{{ application[1].patronymic }}</td>
+                    <td>{{ application[2] }}</td>
                     <td>{{ 'Проходит' if specialty.amount_place >= loop.index else 'Не проходит' }}</td>
                 </tr>
                 {% endfor %}
