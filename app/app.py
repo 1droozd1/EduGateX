@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
+import requests
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from model import *
@@ -338,6 +339,21 @@ def specialty_detail(specialty_id):
     applications = get_rating_lists_for_special_detail(specialty_id)
 
     return render_template('specialty_detail.html', specialty=specialty, applications=applications)
+
+@app.route('/specialty_detail/<int:specialty_id>/download')
+def download_pdf(specialty_id):
+    # Используем url_for для получения полного URL
+    url = url_for('specialty_detail', specialty_id=specialty_id, _external=True)
+
+    # Создаем временный файл для сохранения PDF
+    pdf_filename = '/tmp/downloaded_page.pdf'
+
+    # Используем wkhtmltopdf для создания PDF из HTML-страницы
+    command = f'wkhtmltopdf {url} {pdf_filename}'
+    os.system(command)
+
+    # Отправляем файл пользователю
+    return send_file(pdf_filename, as_attachment=True)
 
 @app.route('/profile/<username>', methods=['GET'])
 def profile(username):

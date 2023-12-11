@@ -13,9 +13,15 @@
         <div class="col-md-1">
             <a href="{{ session['admin_dashboard'] }}" class="btn btn-secondary me-2">Назад</a>
         </div>
-        <div class="col-md-14 d-flex align-items-center">
-            <h2 class="text-center">Рейтинг по специальности: {{ specialty.name_speciality }}</h2>
+        <div class="col-md-10">
+            <a href="{{ url_for('download_pdf', specialty_id=specialty.specialityid)}}" class="btn btn-secondary">Скачать форму</a>
         </div>
+        <div class="col-md-14 d-flex align-items-center">
+            <h2 class="text-center">Рейтинг по специальности: {{ specialty.code_speciality}} {{ specialty.name_speciality }}</h2>
+        </div>
+        <h4 class="text-start">{{'Платное' if specialty.is_paid else 'Бюджетное'}}</h2>
+        <h4 class="text-start">Количество мест: {{ specialty.amount_place }}</h2>
+        <h4 class="text-start">Количество заявлений: {{ applications[-1][0] }}</h2>
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -40,5 +46,5 @@
                 {% endfor %}
             </tbody>
         </table>        
-    </div>
+    </div>   
 {% endblock %}

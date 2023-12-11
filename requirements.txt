@@ -3,3 +3,5 @@ flask_sqlalchemy
 faker
 psycopg2-binary
 Werkzeug
+weasyprint
+WeasyPrint
