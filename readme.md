@@ -24,4 +24,11 @@ EduGateX - это проект, разработанный для упрощен
 2. Клонируйте репозиторий:
 
    ```shell
-   git clone https://github.com/yourusername/uniadmit.git
+   git clone https://github.com/1droozd1/EduGateX.git
+3. Сделайте предустановку всех библиотек с помощью:
+   ```shell
+   make venv
+3. Запустите:
+   ```shell
+   make run
+
