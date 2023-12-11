@@ -93,8 +93,9 @@ class Exam(db.Model):
     name_exam = db.Column(db.String(50), nullable=False)
 
 class Exam_res(db.Model):
+
     abiturientid = db.Column(db.Integer, db.ForeignKey('abiturient.abiturientid'), primary_key=True)
-    examid = db.Column(db.Integer, db.ForeignKey('exam.examID'), primary_key=True)
+    examid = db.Column(db.Integer, db.ForeignKey('exam.examid'), primary_key=True)
     score = db.Column(db.Integer)
 
 class Employee(db.Model):

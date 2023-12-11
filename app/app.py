@@ -193,11 +193,11 @@ def admin_dashboard(username):
 @app.route('/add_abiturient_form')
 def add_abiturient_form():
     specialties = Specialty_for_study.query.all()
-    return render_template('add_abiturient_form.html', specialties=specialties)
+    exam_names = Exam.query.all()
+    return render_template('add_abiturient_form.html', specialties=specialties, exam_names=exam_names)
 
 @app.route('/add_abiturient', methods=['POST'])
 def add_abiturient():
-    error_messages = []
     if request.method == 'POST':
 
         specialityid = request.form.get('specialityid')
@@ -218,12 +218,20 @@ def add_abiturient():
         db.session.add(new_abiturient)
         db.session.commit()
 
-        avarage_point_certitfic = request.form.get('avarage_point_certitfic')
         data_application = datetime.now().date().strftime("%Y-%m-%d")
         employeeid = session['employeeid']
-        new_application = Application_for_admission(abiturientid=new_abiturient.abiturientid, specialityid=specialityid, avarage_point_certitfic=avarage_point_certitfic, data_application=data_application, employeeid=employeeid)
+        new_application = Application_for_admission(abiturientid=new_abiturient.abiturientid, specialityid=specialityid, data_application=data_application, employeeid=employeeid)
         db.session.add(new_application)
         db.session.commit()
+
+        # Обработка данных по экзаменам
+        exam_ids = request.form.getlist('examid[]')
+        exam_scores = request.form.getlist('exam_score[]')
+        for exam_id, exam_score in zip(exam_ids, exam_scores):
+            new_exam_result = Exam_res(abiturientid=new_abiturient.abiturientid, examid=exam_id, score=exam_score)
+            db.session.add(new_exam_result)
+            db.session.commit()
+
         flash('AbiturientAddedSuccessfully')
         return redirect(url_for('admin_dashboard', username=session['username']))
 

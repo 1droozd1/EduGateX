@@ -14,6 +14,7 @@
     {% endif %}
 
     <form method="post" action="{{ url_for('add_abiturient') }}" class="needs-validation" novalidate id="addAbiturientForm">
+        <button type="submit" class="btn btn-primary float-end mb-sm-3 ">Добавить</button>
         <div class="mb-3">
             <label for="first_name" class="form-label">Имя</label>
             <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Имя" required>
@@ -70,19 +71,60 @@
                 Пожалуйста, выберите направление.
             </div>
         </div>
-        <div class="mb-3">
-            <label for="avarage_point_certitfic" class="form-label">Средний балл аттестата</label>
-            <input type="text" name="avarage_point_certitfic" id="avarage_point_certitfic" class="form-control" placeholder="Средний балл аттестата" required>
+
+        <div id="examBlock" class="mb-3">
+            <label for="examid" class="form-label">Выберите экзамен</label>
+            <select name="examid[]" class="form-select" required>
+                <option value="">Выберите экзамен</option>
+                {% for exam in exam_names %}
+                    <option value="{{ exam.examid }}">{{ exam.name_exam }}</option>
+                {% endfor %}
+            </select>
             <div class="invalid-feedback">
-                Пожалуйста, введите средний балл аттестата.
+                Пожалуйста, выберите экзамен.
+            </div>
+        
+            <label for="exam_score" class="form-label">Укажите баллы</label>
+            <input type="number" name="exam_score[]" class="form-control" placeholder="Укажите баллы" required>
+            <div class="invalid-feedback">
+                Пожалуйста, укажите баллы для экзамена.
             </div>
         </div>
-        <a href="{{ session['admin_dashboard'] }}" class="btn btn-secondary">Назад</a>
-        <button type="submit" class="btn btn-primary">Добавить</button>
-    </form>
+    </form>   
+    <a href="{{ session['admin_dashboard'] }}" class="btn btn-secondary">Назад</a>
+    <!-- Кнопка для добавления еще одного экзамена -->
+    <button type="button" id="add_exam_button" class="btn btn-primary">Добавить еще экзамен</button>    
+    <!-- Кнопка для удаления последнего экзамена -->
+    <button type="button" id="remove_exam_button" class="btn btn-danger">Удалить последний экзамен</button>
 </div>
 
 <script>
+    // JavaScript-код для обработки добавления еще одного экзамена
+    document.getElementById('add_exam_button').addEventListener('click', function() {
+        // Клонируем блок с выбором экзамена и вводом баллов
+        var examBlockClone = document.getElementById('examBlock').cloneNode(true);
+
+        // Очищаем значения в клонированных полях ввода
+        examBlockClone.querySelector('select[name="examid[]"]').value = '';
+        examBlockClone.querySelector('input[name="exam_score[]"]').value = '';
+
+        // Добавляем клонированный блок в конец формы
+        document.querySelector('form').appendChild(examBlockClone);
+    });
+    
+    document.getElementById('remove_exam_button').addEventListener('click', function() {
+        // Получаем все блоки с идентификатором 'examBlock'
+        var examBlocks = document.querySelectorAll('#examBlock');
+
+        // Проверяем, что есть более одного блока перед удалением
+        if (examBlocks.length > 1) {
+            // Получаем последний блок и удаляем его
+            var lastExamBlock = examBlocks[examBlocks.length - 1];
+            lastExamBlock.parentNode.removeChild(lastExamBlock);
+        }
+    });
+
+
     document.getElementById('addAbiturientForm').addEventListener('submit', function(event) {
         var form = this;
         var errors = [];
@@ -109,12 +151,6 @@
         var sex = form.querySelector('#sex').value;
         if (!isValidSex(sex)) {
             errors.push('Выберите корректный пол.');
-        }
-
-        // Пример валидации поля Средний балл аттестата
-        var averagePoint = form.querySelector('#avarage_point_certitfic').value;
-        if (!isValidAveragePoint(averagePoint)) {
-            errors.push('Введите корректный средний балл аттестата.');
         }
 
         // Пример валидации поля Телефон
@@ -154,11 +190,6 @@
     function isValidSex(sex) {
         // Проверка на корректный пол (m или f)
         return /^(m|f)$/.test(sex);
-    }
-
-    function isValidAveragePoint(point) {
-        // Проверка на корректный средний балл (число от 1 до 5)
-        return /^[1-5](\.\d{1,2})?$/.test(point);
     }
 
     function isValidPhone(phone) {
